@@ -1,0 +1,120 @@
+{
+  "components": [
+    {
+      "text": "# New Subscription",
+      "type": "text",
+      "layout": {
+        "row": "Row_1s3t4r4",
+        "columns": null
+      },
+      "id": "Field_1gzotjv"
+    },
+    {
+      "text": "Become a member of the CSNewsletter by subscribing to a topic you like. \nYou will only receive new emails once a month. ",
+      "type": "text",
+      "layout": {
+        "row": "Row_1rdjtse",
+        "columns": null
+      },
+      "id": "Field_0dhurch"
+    },
+    {
+      "text": "### Select Topic you like:",
+      "type": "text",
+      "layout": {
+        "row": "Row_1gpv5jn",
+        "columns": null
+      },
+      "id": "Field_0bxntai"
+    },
+    {
+      "label": "Select your preffered topic:",
+      "values": [
+        {
+          "label": "Technology",
+          "value": "technology"
+        },
+        {
+          "label": "Medicine",
+          "value": "medicine"
+        },
+        {
+          "label": "Investment",
+          "value": "investment"
+        }
+      ],
+      "type": "radio",
+      "layout": {
+        "row": "Row_1rvhevx",
+        "columns": null
+      },
+      "id": "Field_17kp80q",
+      "key": "topic",
+      "validate": {
+        "required": true
+      }
+    },
+    {
+      "text": "*You can choose only one. **for now***",
+      "type": "text",
+      "layout": {
+        "row": "Row_1qtka95",
+        "columns": null
+      },
+      "id": "Field_0ba1k4w"
+    },
+    {
+      "text": "### Give us your email:",
+      "type": "text",
+      "layout": {
+        "row": "Row_0l09r6w",
+        "columns": null
+      },
+      "id": "Field_17pdmgw"
+    },
+    {
+      "text": "Only internal usage. Not used for selling to third party :)",
+      "type": "text",
+      "layout": {
+        "row": "Row_0c1koak",
+        "columns": null
+      },
+      "id": "Field_1u6eqe6"
+    },
+    {
+      "label": "Your E-mail adress",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_03yhd05",
+        "columns": null
+      },
+      "id": "Field_1und467",
+      "key": "email",
+      "description": "required",
+      "validate": {
+        "required": true,
+        "validationType": "email"
+      }
+    },
+    {
+      "label": "Subscribe",
+      "action": "submit",
+      "type": "button",
+      "layout": {
+        "row": "Row_06bwbxd",
+        "columns": null
+      },
+      "id": "Field_0oopuce"
+    }
+  ],
+  "type": "default",
+  "id": "new_subscription_form",
+  "executionPlatform": "Camunda Cloud",
+  "executionPlatformVersion": "8.8.0",
+  "versionTag": "1.1",
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.40.0"
+  },
+  "schemaVersion": 19
+}

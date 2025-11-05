@@ -1,0 +1,88 @@
+{
+  "components": [
+    {
+      "text": "# Your Newsletter Subscription",
+      "type": "text",
+      "layout": {
+        "row": "Row_1w3yf2u",
+        "columns": null
+      },
+      "id": "Field_1bsnprw"
+    },
+    {
+      "text": "### User Information:",
+      "type": "text",
+      "layout": {
+        "row": "Row_06kky99",
+        "columns": null
+      },
+      "id": "Field_18bhwk2"
+    },
+    {
+      "text": "=userID",
+      "type": "text",
+      "layout": {
+        "row": "Row_0t9vbie",
+        "columns": null
+      },
+      "id": "Field_0id0heq",
+      "properties": {}
+    },
+    {
+      "text": "### Topic Subscribtion:",
+      "type": "text",
+      "layout": {
+        "row": "Row_15rneaa",
+        "columns": null
+      },
+      "id": "Field_0mrhfdz"
+    },
+    {
+      "text": "=topic",
+      "type": "text",
+      "layout": {
+        "row": "Row_0p7ow8y",
+        "columns": null
+      },
+      "id": "Field_0lvr8la"
+    },
+    {
+      "text": "## Cancel Subscription?",
+      "type": "text",
+      "layout": {
+        "row": "Row_0sddyf0",
+        "columns": null
+      },
+      "id": "Field_1k0ke1a"
+    },
+    {
+      "text": "To proceed, please click the **\"Complete Task\"** button.",
+      "type": "text",
+      "layout": {
+        "row": "Row_1n9s90y",
+        "columns": null
+      },
+      "id": "Field_0mjntzk"
+    },
+    {
+      "label": "Complete Task",
+      "action": "submit",
+      "type": "button",
+      "layout": {
+        "row": "Row_02a4k62",
+        "columns": null
+      },
+      "id": "Field_0euur3p"
+    }
+  ],
+  "type": "default",
+  "id": "Form_Subscription_Cancel",
+  "executionPlatform": "Camunda Cloud",
+  "executionPlatformVersion": "8.8.0",
+  "versionTag": "1.0.",
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.40.0"
+  },
+  "schemaVersion": 19
+}

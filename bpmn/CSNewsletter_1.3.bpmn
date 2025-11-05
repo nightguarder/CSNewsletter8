@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:zeebe="http://camunda.org/schema/zeebe/1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_19022vy" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.40.1" modeler:executionPlatform="Camunda Cloud" modeler:executionPlatformVersion="8.8.0">
+  <bpmn:process id="new-user-subscription-process" name="New User Subscription" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_NewSubscription" name="New Subscription Request">
+      <bpmn:extensionElements>
+        <zeebe:formDefinition formKey="camunda-forms:bpmn:new_subscription_form" />
+      </bpmn:extensionElements>
+      <bpmn:outgoing>Flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="Task_CheckUser" name="Check for Existing User">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="check-user-exists" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1</bpmn:incoming>
+      <bpmn:outgoing>Flow_2</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="Gateway_UserExists" name="User Already Exists?">
+      <bpmn:incoming>Flow_2</bpmn:incoming>
+      <bpmn:outgoing>Flow_HappyPath</bpmn:outgoing>
+      <bpmn:outgoing>Flow_SadPath</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="Task_CreateUser" name="Create User in DB">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="create-user" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_HappyPath</bpmn:incoming>
+      <bpmn:outgoing>Flow_3</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Task_SendConfirmation" name="Send Confirmation Email">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="send-confirmation-email" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_3</bpmn:incoming>
+      <bpmn:outgoing>Flow_4</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:callActivity id="CallActivity_StartMonthly" name="Start Monthly Subscription">
+      <bpmn:extensionElements>
+        <zeebe:calledElement processId="newsletter_subscription" />
+        <!-- Pass parent variables into the called child process -->
+        <zeebe:in source="userID" target="userID" />
+        <zeebe:in source="email" target="email" />
+        <zeebe:in source="topic" target="topic" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_4</bpmn:incoming>
+      <bpmn:outgoing>Flow_5</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:endEvent id="EndEvent_HappyPath" name="Subscription Started">
+      <bpmn:incoming>Flow_5</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:serviceTask id="Task_LogDuplicate" name="Log Duplicate Attempt">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="log-duplicate-attempt" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_SadPath</bpmn:incoming>
+      <bpmn:outgoing>Flow_6</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="EndEvent_SadPath" name="Duplicate Request Handled">
+      <bpmn:incoming>Flow_6</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1" sourceRef="StartEvent_NewSubscription" targetRef="Task_CheckUser" />
+    <bpmn:sequenceFlow id="Flow_2" sourceRef="Task_CheckUser" targetRef="Gateway_UserExists" />
+    <bpmn:sequenceFlow id="Flow_HappyPath" name="No" sourceRef="Gateway_UserExists" targetRef="Task_CreateUser">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">= userExists = false</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_SadPath" name="Yes" sourceRef="Gateway_UserExists" targetRef="Task_LogDuplicate">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">= userExists = true</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_3" sourceRef="Task_CreateUser" targetRef="Task_SendConfirmation" />
+    <bpmn:sequenceFlow id="Flow_4" sourceRef="Task_SendConfirmation" targetRef="CallActivity_StartMonthly" />
+    <bpmn:sequenceFlow id="Flow_5" sourceRef="CallActivity_StartMonthly" targetRef="EndEvent_HappyPath" />
+    <bpmn:sequenceFlow id="Flow_6" sourceRef="Task_LogDuplicate" targetRef="EndEvent_SadPath" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="new-user-subscription-process">
+      <bpmndi:BPMNShape id="StartEvent_NewSubscription_di" bpmnElement="StartEvent_NewSubscription">
+        <dc:Bounds x="179" y="159" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="157" y="202" width="81" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_CheckUser_di" bpmnElement="Task_CheckUser">
+        <dc:Bounds x="270" y="137" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_UserExists_di" bpmnElement="Gateway_UserExists" isMarkerVisible="true">
+        <dc:Bounds x="425" y="152" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="405" y="114.5" width="90" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_CreateUser_di" bpmnElement="Task_CreateUser">
+        <dc:Bounds x="530" y="137" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_SendConfirmation_di" bpmnElement="Task_SendConfirmation">
+        <dc:Bounds x="690" y="137" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="CallActivity_StartMonthly_di" bpmnElement="CallActivity_StartMonthly">
+        <dc:Bounds x="850" y="137" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_HappyPath_di" bpmnElement="EndEvent_HappyPath">
+        <dc:Bounds x="1012" y="159" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="986" y="202" width="89" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_LogDuplicate_di" bpmnElement="Task_LogDuplicate">
+        <dc:Bounds x="530" y="260" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_SadPath_di" bpmnElement="EndEvent_SadPath">
+        <dc:Bounds x="692" y="282" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="671" y="325" width="78" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1_di" bpmnElement="Flow_1">
+        <di:waypoint x="215" y="177" />
+        <di:waypoint x="270" y="177" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_2_di" bpmnElement="Flow_2">
+        <di:waypoint x="370" y="177" />
+        <di:waypoint x="425" y="177" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_HappyPath_di" bpmnElement="Flow_HappyPath">
+        <di:waypoint x="475" y="177" />
+        <di:waypoint x="530" y="177" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="494" y="159" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_SadPath_di" bpmnElement="Flow_SadPath">
+        <di:waypoint x="450" y="202" />
+        <di:waypoint x="450" y="300" />
+        <di:waypoint x="530" y="300" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="457" y="248" width="18" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_3_di" bpmnElement="Flow_3">
+        <di:waypoint x="630" y="177" />
+        <di:waypoint x="690" y="177" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_4_di" bpmnElement="Flow_4">
+        <di:waypoint x="790" y="177" />
+        <di:waypoint x="850" y="177" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_5_di" bpmnElement="Flow_5">
+        <di:waypoint x="950" y="177" />
+        <di:waypoint x="1012" y="177" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_6_di" bpmnElement="Flow_6">
+        <di:waypoint x="630" y="300" />
+        <di:waypoint x="692" y="300" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

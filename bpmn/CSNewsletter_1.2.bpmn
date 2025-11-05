@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:zeebe="http://camunda.org/schema/zeebe/1.0" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_0c4cojz" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.40.1" modeler:executionPlatform="Camunda Cloud" modeler:executionPlatformVersion="8.8.0">
+  <bpmn:process id="newsletter_subscription" name="CS Newsletter bpmn" isExecutable="true">
+    <bpmn:extensionElements>
+      <zeebe:versionTag value="1.3" />
+    </bpmn:extensionElements>
+    <bpmn:serviceTask id="id_log_subscription" name="Log subscription">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="log-subscription" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0hkvzcv</bpmn:incoming>
+      <bpmn:outgoing>Flow_1csfiag</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:startEvent id="StartEvent_1" name="Start">
+      <bpmn:outgoing>Flow_1miuq4g</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="Flow_1csfiag" sourceRef="id_log_subscription" targetRef="id_find_articles" />
+    <bpmn:serviceTask id="id_find_articles" name="Find Relevant articles">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="find-articles" retries="5" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1csfiag</bpmn:incoming>
+      <bpmn:outgoing>Flow_1opcmgx</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_1opcmgx" sourceRef="id_find_articles" targetRef="id_format_email" />
+    <bpmn:serviceTask id="id_format_email" name="Format email">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="format-email" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1opcmgx</bpmn:incoming>
+      <bpmn:outgoing>Flow_1okwqtw</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sendTask id="id_send_email" name="Send email">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="send-email" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1okwqtw</bpmn:incoming>
+      <bpmn:outgoing>Flow_0ixnn6q</bpmn:outgoing>
+    </bpmn:sendTask>
+    <bpmn:endEvent id="Event_1reuhhd" name="End Job">
+      <bpmn:incoming>Flow_0ixnn6q</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_0ixnn6q" sourceRef="id_send_email" targetRef="Event_1reuhhd" />
+    <bpmn:userTask id="id_manage_subscriptions" name="Manage Subscriptions">
+      <bpmn:extensionElements>
+        <zeebe:userTask />
+        <zeebe:formDefinition formId="Form_Subscription_Cancel" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1miuq4g</bpmn:incoming>
+      <bpmn:outgoing>Flow_08yrclo</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_1miuq4g" sourceRef="StartEvent_1" targetRef="id_manage_subscriptions" />
+    <bpmn:boundaryEvent id="timer_monthly_trigger" name="Monthly trigger (non interruptive)" cancelActivity="false" attachedToRef="id_manage_subscriptions">
+      <bpmn:outgoing>Flow_044gb9y</bpmn:outgoing>
+      <bpmn:timerEventDefinition id="TimerEventDefinition_1qlidxs">
+        <bpmn:timeCycle xsi:type="bpmn:tFormalExpression">R/PT1M</bpmn:timeCycle>
+      </bpmn:timerEventDefinition>
+    </bpmn:boundaryEvent>
+    <bpmn:sequenceFlow id="Flow_044gb9y" sourceRef="timer_monthly_trigger" targetRef="get_user_data" />
+    <bpmn:serviceTask id="get_user_data" name="Get User Data">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="get-user-profile" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_044gb9y</bpmn:incoming>
+      <bpmn:outgoing>Flow_0hkvzcv</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_0hkvzcv" sourceRef="get_user_data" targetRef="id_log_subscription" />
+    <bpmn:sequenceFlow id="Flow_1okwqtw" sourceRef="id_format_email" targetRef="id_send_email" />
+    <bpmn:boundaryEvent id="err_user_not_found" name="User not found error" attachedToRef="get_user_data">
+      <bpmn:outgoing>Flow_11f2ubf</bpmn:outgoing>
+      <bpmn:errorEventDefinition id="ErrorEventDefinition_0dnxf35" errorRef="Error_1xvy6ki" />
+    </bpmn:boundaryEvent>
+    <bpmn:sequenceFlow id="Flow_11f2ubf" sourceRef="err_user_not_found" targetRef="id_user_not_found" />
+    <bpmn:serviceTask id="id_user_not_found" name="Log User Not Found">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="user-log-error" retries="" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_11f2ubf</bpmn:incoming>
+      <bpmn:outgoing>Flow_1y10j1r</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Event_1uyfrc8" name="End subscription process">
+      <bpmn:incoming>Flow_1y10j1r</bpmn:incoming>
+      <bpmn:incoming>Flow_08yrclo</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1y10j1r" sourceRef="id_user_not_found" targetRef="Event_1uyfrc8" />
+    <bpmn:sequenceFlow id="Flow_08yrclo" name="user unsubscribed" sourceRef="id_manage_subscriptions" targetRef="Event_1uyfrc8" />
+    <bpmn:exclusiveGateway id="Gateway_0o7jl49" name="Is user unsubscribed?" />
+    <bpmn:textAnnotation id="TextAnnotation_0zkvve0">
+      <bpmn:text>New Subscription</bpmn:text>
+    </bpmn:textAnnotation>
+    <bpmn:association id="Association_0ze2fed" associationDirection="None" sourceRef="StartEvent_1" targetRef="TextAnnotation_0zkvve0" />
+    <bpmn:textAnnotation id="TextAnnotation_0bwwt5z">
+      <bpmn:text>Look in external db for articles</bpmn:text>
+    </bpmn:textAnnotation>
+    <bpmn:association id="Association_14r23j5" associationDirection="None" sourceRef="id_find_articles" targetRef="TextAnnotation_0bwwt5z" />
+    <bpmn:textAnnotation id="TextAnnotation_01679xg">
+      <bpmn:text>Dear user1, 
+We have found these:</bpmn:text>
+    </bpmn:textAnnotation>
+    <bpmn:association id="Association_15g7naz" associationDirection="None" sourceRef="id_format_email" targetRef="TextAnnotation_01679xg" />
+    <bpmn:textAnnotation id="TextAnnotation_17saxt1">
+      <bpmn:text>Thank you for subscribing!</bpmn:text>
+    </bpmn:textAnnotation>
+    <bpmn:association id="Association_0omntj4" associationDirection="None" sourceRef="id_send_email" targetRef="TextAnnotation_17saxt1" />
+    <bpmn:textAnnotation id="TextAnnotation_12n9fsw">
+      <bpmn:text>Newsletter cancelation form</bpmn:text>
+    </bpmn:textAnnotation>
+    <bpmn:association id="Association_1h545ow" associationDirection="None" sourceRef="id_manage_subscriptions" targetRef="TextAnnotation_12n9fsw" />
+    <bpmn:textAnnotation id="TextAnnotation_1hew26z">
+      <bpmn:text>1minute</bpmn:text>
+    </bpmn:textAnnotation>
+    <bpmn:association id="Association_13mdkdf" associationDirection="None" sourceRef="timer_monthly_trigger" targetRef="TextAnnotation_1hew26z" />
+  </bpmn:process>
+  <bpmn:error id="Error_1xvy6ki" name="USER_NOT_FOUND" errorCode="USER_NOT_FOUND" />
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="newsletter_subscription">
+      <bpmndi:BPMNShape id="Activity_13t4i5l_di" bpmnElement="id_log_subscription">
+        <dc:Bounds x="630" y="230" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="StartEvent_1_di" bpmnElement="StartEvent_1">
+        <dc:Bounds x="182" y="222" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="188" y="265" width="24" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0mtnmqu_di" bpmnElement="id_find_articles">
+        <dc:Bounds x="630" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1bkd1vq_di" bpmnElement="id_format_email">
+        <dc:Bounds x="830" y="80" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0jvdea2_di" bpmnElement="id_send_email">
+        <dc:Bounds x="830" y="230" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1reuhhd_di" bpmnElement="Event_1reuhhd">
+        <dc:Bounds x="1012" y="252" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1010" y="295" width="41" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1fpitbj_di" bpmnElement="id_manage_subscriptions">
+        <dc:Bounds x="310" y="200" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1xvvg4i_di" bpmnElement="get_user_data">
+        <dc:Bounds x="460" y="330" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_04tbljr_di" bpmnElement="id_user_not_found">
+        <dc:Bounds x="580" y="450" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1uyfrc8_di" bpmnElement="Event_1uyfrc8">
+        <dc:Bounds x="732" y="472" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="709" y="435" width="82" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0o7jl49_di" bpmnElement="Gateway_0o7jl49" isMarkerVisible="true">
+        <dc:Bounds x="245" y="315" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="234" y="372" width="72" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Association_13mdkdf_di" bpmnElement="Association_13mdkdf">
+        <di:waypoint x="423" y="268" />
+        <di:waypoint x="473" y="225" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Association_0ze2fed_di" bpmnElement="Association_0ze2fed">
+        <di:waypoint x="203" y="223" />
+        <di:waypoint x="212" y="181" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="TextAnnotation_0bwwt5z_di" bpmnElement="TextAnnotation_0bwwt5z">
+        <dc:Bounds x="500" y="80" width="100" height="41" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="TextAnnotation_01679xg_di" bpmnElement="TextAnnotation_01679xg">
+        <dc:Bounds x="980" y="92" width="100" height="55" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="TextAnnotation_17saxt1_di" bpmnElement="TextAnnotation_17saxt1">
+        <dc:Bounds x="950" y="190" width="100" height="39" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="TextAnnotation_12n9fsw_di" bpmnElement="TextAnnotation_12n9fsw">
+        <dc:Bounds x="400" y="120" width="100" height="55" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0ay9xb9_di" bpmnElement="err_user_not_found">
+        <dc:Bounds x="492" y="392" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="474" y="435" width="73" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0xr647b_di" bpmnElement="timer_monthly_trigger">
+        <dc:Bounds x="392" y="262" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="438" y="266" width="84" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1csfiag_di" bpmnElement="Flow_1csfiag">
+        <di:waypoint x="680" y="230" />
+        <di:waypoint x="680" y="160" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1opcmgx_di" bpmnElement="Flow_1opcmgx">
+        <di:waypoint x="730" y="120" />
+        <di:waypoint x="830" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0ixnn6q_di" bpmnElement="Flow_0ixnn6q">
+        <di:waypoint x="930" y="270" />
+        <di:waypoint x="1012" y="270" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1miuq4g_di" bpmnElement="Flow_1miuq4g">
+        <di:waypoint x="218" y="240" />
+        <di:waypoint x="310" y="240" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_044gb9y_di" bpmnElement="Flow_044gb9y">
+        <di:waypoint x="410" y="298" />
+        <di:waypoint x="410" y="370" />
+        <di:waypoint x="460" y="370" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0hkvzcv_di" bpmnElement="Flow_0hkvzcv">
+        <di:waypoint x="560" y="370" />
+        <di:waypoint x="680" y="370" />
+        <di:waypoint x="680" y="310" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1okwqtw_di" bpmnElement="Flow_1okwqtw">
+        <di:waypoint x="880" y="160" />
+        <di:waypoint x="880" y="230" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_11f2ubf_di" bpmnElement="Flow_11f2ubf">
+        <di:waypoint x="510" y="428" />
+        <di:waypoint x="510" y="490" />
+        <di:waypoint x="580" y="490" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1y10j1r_di" bpmnElement="Flow_1y10j1r">
+        <di:waypoint x="680" y="490" />
+        <di:waypoint x="732" y="490" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_08yrclo_di" bpmnElement="Flow_08yrclo">
+        <di:waypoint x="360" y="280" />
+        <di:waypoint x="360" y="560" />
+        <di:waypoint x="750" y="560" />
+        <di:waypoint x="750" y="508" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="510" y="542" width="90" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Association_14r23j5_di" bpmnElement="Association_14r23j5">
+        <di:waypoint x="630" y="113" />
+        <di:waypoint x="600" y="109" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Association_15g7naz_di" bpmnElement="Association_15g7naz">
+        <di:waypoint x="930" y="120" />
+        <di:waypoint x="980" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Association_0omntj4_di" bpmnElement="Association_0omntj4">
+        <di:waypoint x="930" y="243" />
+        <di:waypoint x="956" y="229" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Association_1h545ow_di" bpmnElement="Association_1h545ow">
+        <di:waypoint x="394" y="200" />
+        <di:waypoint x="416" y="175" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="TextAnnotation_1hew26z_di" bpmnElement="TextAnnotation_1hew26z">
+        <dc:Bounds x="440" y="195" width="100" height="30" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="TextAnnotation_0zkvve0_di" bpmnElement="TextAnnotation_0zkvve0">
+        <dc:Bounds x="170" y="140" width="100" height="41" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

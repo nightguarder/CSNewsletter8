@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:zeebe="http://camunda.org/schema/zeebe/1.0" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_19022vy" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.40.0" modeler:executionPlatform="Camunda Cloud" modeler:executionPlatformVersion="8.8.0">
+  <bpmn:process id="id_new_subscriber" name="New Subscriber" isExecutable="true">
+    <bpmn:extensionElements>
+      <zeebe:versionTag value="1.0." />
+    </bpmn:extensionElements>
+    <bpmn:startEvent id="Event_0ixfuff" name="New Subscriber">
+      <bpmn:extensionElements />
+      <bpmn:outgoing>Flow_1j3g9r1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="Flow_1j3g9r1" sourceRef="Event_0ixfuff" targetRef="Activity_008fhhr" />
+    <bpmn:startEvent id="Event_0hht7o8" />
+    <bpmn:userTask id="Activity_008fhhr">
+      <bpmn:extensionElements>
+        <zeebe:userTask />
+        <zeebe:formDefinition formId="new_subscription_form" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1j3g9r1</bpmn:incoming>
+    </bpmn:userTask>
+    <bpmn:textAnnotation id="TextAnnotation_0cl09bm">
+      <bpmn:text>Listen to New Subscriber Form</bpmn:text>
+    </bpmn:textAnnotation>
+    <bpmn:association id="Association_08a2l8z" associationDirection="None" sourceRef="Activity_008fhhr" targetRef="TextAnnotation_0cl09bm" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="id_new_subscriber">
+      <bpmndi:BPMNShape id="Event_0ixfuff_di" bpmnElement="Event_0ixfuff">
+        <dc:Bounds x="182" y="182" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="161" y="225" width="78" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0hht7o8_di" bpmnElement="Event_0hht7o8">
+        <dc:Bounds x="332" y="302" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1gnwb35_di" bpmnElement="Activity_008fhhr">
+        <dc:Bounds x="270" y="160" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Association_08a2l8z_di" bpmnElement="Association_08a2l8z">
+        <di:waypoint x="287" y="160" />
+        <di:waypoint x="266" y="135" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="TextAnnotation_0cl09bm_di" bpmnElement="TextAnnotation_0cl09bm">
+        <dc:Bounds x="220" y="80" width="100" height="55" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1j3g9r1_di" bpmnElement="Flow_1j3g9r1">
+        <di:waypoint x="218" y="200" />
+        <di:waypoint x="270" y="200" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
